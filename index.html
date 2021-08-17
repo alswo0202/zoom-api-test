@@ -60,7 +60,7 @@ var options = {
 };
 
 // Web App URL linked to Zoom OAuth App
-var returnUrl = "https://script.google.com/macros/s/AKfycbz1eJYrsurUs8VAu9cOiU66swocNcWs5KuZ2aWAra0ZeUnC8xVz5huLHLkvf6w9aXo/usercallback";
+var returnUrl = "https://alswo0202.github.io/zoom-api-test/index.html/usercallback";
 
 // make Zoom OAuth call
 var response = UrlFetchApp.fetch("https://zoom.us/oauth/token?grant_type=authorization_code&code=" + authCodeClean + "&redirect_uri=" + returnUrl, options);
