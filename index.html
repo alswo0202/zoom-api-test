@@ -1,11 +1,96 @@
 <!DOCTYPE  html>
 <html>
     <head>
-        
+        <script type="text/javascript">
+        // @ts-nocheck
+/*
+Zoom Build an App:
+https://marketplace.zoom.us/docs/guides/build/oauth-app
+OAuth with Zoom:
+https://marketplace.zoom.us/docs/guides/auth/oauth
+*/
+
+
+function doGet(e) {
+
+// get authorisation code from returned Url
+var authCode = JSON.stringify(e.parameter.code);
+// remove quotes around the code
+var authCodeClean = authCode.replace(/['"]+/g, '');
+// run Function to add to Spreadsheet
+saveIntoSheet(authCodeClean)
+
+
+// run Function to get Token from AuthCode
+var accessToken = getToken(authCodeClean);
+
+
+// check status of Access Token and display relevant message on webpage
+if (accessToken) {
+
+  // return message to webpage to inform user
+  return HtmlService.createHtmlOutput('Success! You can close this tab.');
+  
+}
+else {
+  // there was a problem getting Authentication Code
+
+  // return message to webpage to inform user
+  return HtmlService.createHtmlOutput('Failed. You can close this tab');
+}
+
+}
+
+
+
+// use Authorisation Code to get a Token
+function getToken(authCodeClean) { 
+
+// set authentication and get OAuthKeys
+var clientID = "1OOeRd5YSge9EDREIiF_g";
+var clientSecret = "9aEbgFI5SAVy6vix0pZrnmnvEIGUPNdX";
+var encodedKeys = Utilities.base64Encode(clientID + ":" + clientSecret);
+
+//Set the HTTP headers
+var options = {
+  'method': "post", 
+  'headers': {"Authorization": "Basic " + encodedKeys},
+  
+  'Content-Type' : "application/x-www-form-urlencoded"
+};
+
+// Web App URL linked to Zoom OAuth App
+var returnUrl = "https://script.google.com/macros/s/AKfycbz1eJYrsurUs8VAu9cOiU66swocNcWs5KuZ2aWAra0ZeUnC8xVz5huLHLkvf6w9aXo/usercallback";
+
+// make Zoom OAuth call
+var response = UrlFetchApp.fetch("https://zoom.us/oauth/token?grant_type=authorization_code&code=" + authCodeClean + "&redirect_uri=" + returnUrl, options);
+
+
+// run Function to add Access Token to Spreadsheet
+var resultText = response.getContentText();
+var resultObj = JSON.parse(resultText);
+var accessToken = resultObj['access_token'];
+saveIntoSheet(accessToken);
+
+// return the Access Token value to the Parent Function
+return accessToken; 
+
+}
+
+
+// Function to copy values into the Google Sheet.
+function saveIntoSheet(value) {
+
+document.querySelector("article").innerHTML = value;
+
+return;
+
+}
+        </script>
         <title>zoom-api-test-page</title>
     </head>
     <body>
-
+        <button onclick="authorize_post()">POST</button>
         <strong>hello api</strong>
 
     </body>
